@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ask a Question
+    url: https://github.com/4pixeltechBR/token_saver_ClaudeCode/discussions
+    about: Have a question? Ask in our Discussions section.
+  - name: Report Security Issue
+    url: https://github.com/4pixeltechBR/token_saver_ClaudeCode/security/advisories
+    about: Found a security vulnerability? Please report it privately.

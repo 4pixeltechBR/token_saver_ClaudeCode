@@ -1,0 +1,24 @@
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Logs & Temp
+*.log
+*.tmp
+
+# Build artifacts
+dist/
+build/
+*.o
+*.a
+
+# Environment
+.env
+.env.local
