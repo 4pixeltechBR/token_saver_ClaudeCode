@@ -326,6 +326,21 @@ Get-ChildItem "$env:USERPROFILE\.claude\skills" -Directory | ForEach-Object {
 | `/btw pergunta` | Dúvidas rápidas | Resposta efêmera — não entra no histórico |
 | `Shift+Tab` | Antes de tasks grandes | Ativa Plan mode — vê o plano antes de executar |
 
+### Timing de sessão (usuários Pro)
+
+A janela de uso do Claude Pro dura ~5 horas a partir da primeira mensagem da sessão.
+
+**Estratégia:** Envie um "oi" ou comando simples 2–3 horas antes do seu bloco de trabalho intenso. Quando você estiver no pico de produtividade, a janela reinicia — entregando carga renovada no momento certo.
+
+**Horários de menor limitação (horário de Brasília):**
+
+| Horário | Recomendação | Motivo |
+|---------|-------------|--------|
+| 6h–9h | ✅ Ideal | Antes da sobreposição com EUA |
+| 9h–15h | ❌ Evitar | Pico simultâneo Brasil + EUA |
+| Após 20h | ✅ Bom | Fora do horário comercial americano |
+| Fins de semana | ✅ Ideal | Demanda global reduzida |
+
 **Hierarquia de decisão para gerenciar contexto:**
 
 ```
@@ -401,6 +416,32 @@ Para ver tokens por MCP na sessão atual, dentro do Claude Code:
 /mcp
 ```
 
+### 4-C: Code Review Graph — mapear codebase sem ler cada arquivo
+
+**Problema:** Em projetos grandes, Claude lê a base de código repetidamente, esgotando tokens rapidamente. Um projeto médio de 50+ arquivos pode queimar 60–70% do contexto só em exploração.
+
+**Solução:** Gerar um mapa estruturado e hierárquico do projeto e fornecê-lo ao Claude. Impacto: **−60 a −70% de tokens** em projetos com muitos arquivos.
+
+```bash
+# Instalar a ferramenta (requer Node.js)
+npm install -g code-review-graph
+
+# Gerar mapa do projeto em texto estruturado
+crg --format text > project-map.txt
+
+# Alternativa: formato JSON para projetos grandes
+crg --format json > project-map.json
+```
+
+Uso no Claude:
+```
+"Here is the complete project map: [colar conteúdo do project-map.txt]
+Now, without reading any files, tell me where the authentication logic lives
+and navigate directly to those files only."
+```
+
+Em vez de deixar Claude explorar arquivo por arquivo, forneça o mapa e instrua navegação cirúrgica. Use subagentes para leitura — o contexto principal recebe apenas os achados.
+
 ---
 
 ## Camada 5 — Compressão de output (Caveman)
@@ -431,6 +472,47 @@ Impacto real: 14–87% de redução em output discursivo. Médias reais em bench
 
 ---
 
+## Camada 6 — Otimização de Input
+
+### 6-A: PDFs — nunca suba o arquivo direto
+
+PDFs contêm metadados, layouts, cabeçalhos, rodapés e formatação invisível que consomem **70–90% de tokens desnecessários** antes de qualquer análise real.
+
+**Fluxo recomendado:**
+
+1. Abra o PDF em outra ferramenta gratuita (ChatGPT Free, Google Gemini, Claude.ai web)
+2. Use este prompt de extração:
+```
+Read this document. Remove all repetition, headers, footers, page numbers
+and formatting artifacts. Return only the essential points and key data
+in plain text, organized logically.
+```
+3. Cole o texto limpo no Claude Code
+
+**Economia:** 70–90% de redução vs. upload direto do arquivo.
+
+Aplicável também a:
+- Páginas web extensas → extrair só o artigo (sem nav, footer, ads)
+- Relatórios corporativos → remover boilerplate legal e formatação
+- Transcrições longas → resumir antes de enviar
+
+### 6-B: Contexto cirúrgico — só envie o que Claude precisa
+
+Regra: **quanto menos contexto irrelevante, mais precisa a resposta.**
+
+```
+# Em vez de colar 500 linhas de log
+"Here are the last 20 lines around the error: [apenas o trecho relevante]"
+
+# Em vez de colar todo o arquivo de config
+"Here is the relevant config section: [apenas o bloco específico]"
+
+# Em vez de colar o schema inteiro do banco
+"Here are the 3 tables involved in this query: [apenas essas tabelas]"
+```
+
+---
+
 ## Seleção de modelo por complexidade
 
 ```bash
@@ -445,6 +527,16 @@ Impacto real: 14–87% de redução em output discursivo. Médias reais em bench
 # Alias híbrido (plan=Opus, execute=Sonnet)
 /model opusplan
 ```
+
+Distribuição recomendada de uso:
+
+| Modelo | % ideal | Quando usar |
+|--------|---------|-------------|
+| **Sonnet** | 80% | Codificação diária, análise de dados, relatórios, resumos |
+| **Opus** | 15% | Arquitetura complexa, bugs raros, escrita com alta nuance |
+| **Haiku** | 5% | Classificações rápidas, automações simples, buscas |
+
+Regra prática: **comece sempre com Sonnet. Só mude para Opus se a resposta não for satisfatória.** Na dúvida, Sonnet resolve.
 
 Custo relativo aproximado: Haiku = 1×, Sonnet = 6×, Opus = 30×.
 
@@ -466,6 +558,11 @@ Custo relativo aproximado: Haiku = 1×, Sonnet = 6×, Opus = 30×.
 | `/btw` para dúvidas pontuais | Resposta sem histórico | Docs oficiais | CLI ✓ / Desktop ✓ |
 | Inglês em CLAUDE.md/instruções | −30 a −50% input instruções | arXiv 2305.15425 | CLI ✓ / Desktop ✓ |
 | CLI em vez de MCP quando possível | −100% overhead do MCP | Community best practices | CLI ✓ / Desktop ✓ |
+| Code Review Graph | −60 a −70% tokens de codebase | Community benchmarks | CLI ✓ / Desktop ✓ |
+| PDFs pré-processados | −70 a −90% tokens de input | Community best practices | Todos |
+| Contexto cirúrgico (trechos vs. arquivos) | −40 a −60% input por tarefa | Community best practices | Todos |
+| Timing de sessão (janela 5h Pro) | Carga renovada no pico | Community tip | Claude Pro |
+| Horários de baixa demanda | Menos limitações de servidor | Community tip | Todos |
 
 ---
 
