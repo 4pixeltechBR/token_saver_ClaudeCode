@@ -217,11 +217,14 @@ coverage/
 Write-Host "✓ .claudeignore criado"
 ```
 
-### 1-C: settings.json — variáveis de ambiente de custo
+### 1-C: ~/.claude.json — variáveis de ambiente de custo
 
-Arquivo de configuração central. Localização:
-- **Linux/macOS:** `~/.claude/settings.json`
-- **Windows:** `%USERPROFILE%\.claude\settings.json`
+> [!IMPORTANT]
+> **Arquivo correto:** o Claude Code lê as configurações de `~/.claude.json` (raiz do home), **não** de `~/.claude/settings.json`. Usar o caminho errado faz o setup ser silenciosamente ignorado.
+
+Localização correta:
+- **Linux/macOS:** `~/.claude.json`
+- **Windows:** `%USERPROFILE%\.claude.json`
 
 Configuração recomendada para economizar tokens:
 
@@ -238,6 +241,8 @@ Configuração recomendada para economizar tokens:
 }
 ```
 
+Os scripts `setup.sh` e `setup-windows.ps1` já escrevem neste caminho correto e usam `merge_json.py` para mesclar sem destruir configs existentes (MCPs, temas etc.).
+
 O que cada variável faz:
 
 | Variável | Padrão | Impacto |
@@ -248,7 +253,15 @@ O que cada variável faz:
 | `DISABLE_NON_ESSENTIAL_MODEL_CALLS=1` | desligado | Elimina chamadas de background |
 | `ENABLE_TOOL_SEARCH=true` | false | −85% em tool definitions |
 
-> Para Opus 4.7: `MAX_THINKING_TOKENS` não se aplica (usa adaptive reasoning). Usar `/effort low` ou `/effort medium` para controlar custo de raciocínio.
+### Think-budget por modelo (recomendações validadas)
+
+| Modelo | `MAX_THINKING_TOKENS` ideal | Quando aumentar | Observação |
+|--------|---------------------------|-----------------|------------|
+| **Claude Sonnet 4.6** | `10000` | Arquitetura complexa, debugging profundo | Ponto de equilíbrio custo/qualidade. Acima de 16k o ganho marginal cai. |
+| **Claude Haiku 4.5** | `5000` | Raramente necessário — Haiku é rápido e barato | Definir só se usar Haiku para tarefas de raciocínio explícito. |
+| **Claude Opus 4.8** | **N/A** — não usar `MAX_THINKING_TOKENS` | — | Opus 4.8 usa *adaptive reasoning* nativo. Controlar custo com `/effort low` ou `/effort medium` durante a sessão. |
+
+> **Regra prática:** defina `MAX_THINKING_TOKENS` apenas para Sonnet e Haiku. Para Opus 4.8, omita a variável e use `/effort` interativamente.
 
 ---
 
