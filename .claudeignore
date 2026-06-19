@@ -1,0 +1,94 @@
+# Gerado por token-saver — economiza de 30-40% de contexto
+# Padrões comuns / originais
+node_modules/
+.next/
+.nuxt/
+dist/
+build/
+out/
+.output/
+__pycache__/
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Extensões e Mídias
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.mp4
+*.mp3
+*.zip
+*.tar.gz
+*.exe
+*.dll
+*.so
+*.log
+logs/
+*.sqlite
+*.sqlite3
+*.db
+*.csv
+*.parquet
+*.lock
+
+# Lockfiles comuns
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Cache e logs de ferramentas
+.cache/
+tmp/
+temp/
+.turbo/
+.vercel/
+.netlify/
+coverage/
+.nyc_output/
+
+# --- Cobertura Robusta de Stacks ---
+# 1. JS/TS Stack (Adicional)
+.yarn/cache/
+.yarn/unplugged/
+.pnpm-store/
+bower_components/
+jspm_packages/
+yarn-error.log
+
+# 2. Python Stack (Adicional)
+.tox/
+.nox/
+.ipynb_checkpoints/
+pip-log.txt
+poetry.lock
+pipfile.lock
+
+# 3. Java / JVM Stack
+target/
+.gradle/
+.m2/
+*.class
+*.jar
+*.war
+*.ear
+
+# 4. Dart / Flutter Stack
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/flutter/
+
+# 5. PHP Stack
+vendor/
+composer.lock
+.phpunit.result.cache
