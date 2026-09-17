@@ -1,41 +1,67 @@
-# Token Saver 2.0
+# Token Saver
 
-Inspect Claude Code configuration, review useful changes, apply and undo them.
-Preserves model choice and reasoning effort. No Python or Node runtime required.
+A simple, reversible way to find wasted context in Claude Code. Token Saver
+preserves your model, reasoning effort and instructions.
+
+[Download the latest release](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest) · [View the source](https://github.com/4pixeltechBR/token_saver_ClaudeCode)
 
 ## Install
 
-Download and extract the release package for your operating system and CPU.
-On Windows open `instalar.cmd` (or run `install.ps1`). On macOS/Linux run
-`sh install.sh` in the extracted directory. Open a new Claude Code session and
-run `/token-saver`. The skill responds in your language.
+1. Open the [latest release](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest) and download the ZIP for your computer:
 
-Public download commands become available when the maintainer publishes a release.
-Local packages work without publication or a network connection during installation.
+   - [Windows Intel/AMD](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-windows-amd64.zip)
+   - [Windows ARM](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-windows-arm64.zip)
+   - [macOS Apple Silicon](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-darwin-arm64.zip)
+   - [macOS Intel](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-darwin-amd64.zip)
+   - [Linux Intel/AMD](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-linux-amd64.zip)
+   - [Linux ARM64](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-linux-arm64.zip)
+
+2. Extract the ZIP.
+3. On Windows open `instalar.cmd`; on macOS/Linux run `sh install.sh` in the extracted directory.
+4. Open a new Claude Code session and run `/token-saver`.
+
+The package includes the executable and skill. Python and Node are not required.
+Use `SHA256SUMS.txt` to verify the download before installing if desired.
 
 ## Use
 
-- `/token-saver`: guided diagnosis and review.
-- `/token-saver audit`: read-only diagnosis.
-- `/token-saver undo`: revert the last application.
-- `/token-saver details`: evidence and limitations.
-- Ask for “modo direto” to opt into a concise-response project rule.
+The first run reads the project, shows up to three findings and proposes only
+compatible, verifiable changes. You review the preview before applying anything.
+If no confirmed gain exists, it says that nothing needs changing.
 
-The basic adjustment only re-enables Tool Search in local project settings when
-an explicit disabling setting and compatible environment can be identified.
-Missing environment variables do not imply a problem. Most modern installations
-may need no automatic changes. Models, thinking, permissions and CLAUDE.md are
-preserved. No `.claudeignore` generation or background compaction.
+| Goal | Command |
+|---|---|
+| Start | `/token-saver` |
+| Diagnose only | `/token-saver audit` |
+| Undo the last application | `/token-saver undo` |
+| See details and limits | `/token-saver details` |
+| Opt into concise responses | Ask for “modo direto” |
 
-Configuration improvements are not measurements of token savings. Verify session
-behavior through `/status`, `/context` and `/usage`. The CLI does not measure a
-counterfactual baseline, actual session tokens, or subscription savings.
+The basic flow does not change the model or reasoning effort, edit `CLAUDE.md`,
+create `.claudeignore` or compact conversations automatically. Modo Direto is
+optional and adds one short project rule.
 
-Invalid JSON stops the operation. Backups remain local outside the project;
-they may contain sensitive configuration. Undo preserves unrelated later edits
-and refuses same-field conflicts. Existing customized skill installations are
-preserved; review and rename them before migrating.
+## What is measured
 
-The CLI offers `--project`, `--config-dir`, `--json`, `--dry-run`, `--yes` and
-`--expect`. Sources and binaries are MIT licensed. See CONTRIBUTING.md for builds
-and native-platform validation requirements.
+The diagnostic reports local settings, instruction-file sizes, detectable MCP
+declarations and skills. It does not measure session tokens or cost. Confirm real
+behavior in Claude Code with `/status`, `/context` and `/usage`. A subscription
+does not become cheaper automatically.
+
+## Safety and undo
+
+Invalid JSON is preserved and stops application. Writes are atomic, previews have
+an identifier and history stays outside the project. Undo preserves later edits in
+other keys and refuses same-key conflicts.
+
+Existing customized installations are not overwritten. See [recovery](skill/references/recovery.md) and [technical limits](skill/references/details.md).
+
+## For contributors
+
+The CLI also provides `audit`, `plan`, `apply`, `undo`, `install` and `details`,
+with `--json`, `--dry-run`, `--project`, `--config-dir` and `--expect`. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for tests and packaging.
+
+## License
+
+MIT. [Sources and validity](skill/references/sources.md) · [Português](README.md)

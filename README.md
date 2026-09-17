@@ -1,73 +1,67 @@
-# Token Saver 2.0
+# Token Saver
 
-**Encontre desperdicios no Claude Code, entenda as mudancas e desfaça quando precisar.**
+Uma forma simples e reversível de encontrar desperdício de contexto no Claude Code.
+O Token Saver preserva seu modelo, seu nível de raciocínio e suas instruções.
 
-Sem trocar seu modelo. Sem exigir Python ou Node. Sem promessa de economia inventada.
+[Baixar a versão mais recente](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest) · [Ver o código](https://github.com/4pixeltechBR/token_saver_ClaudeCode)
 
-## Comece em tres passos
+## Instalar
 
-1. Baixe o pacote da versao publicada para seu sistema e extraia o ZIP.
-2. **Windows:** abra `instalar.cmd`. **macOS/Linux:** rode `sh install.sh` na pasta extraida.
-3. Abra uma nova sessao do Claude Code e digite **`/token-saver`**.
+1. Abra a [release mais recente](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest) e baixe o ZIP correspondente ao seu computador:
 
-O pacote local entregue ja pode ser usado. O download publico so estara disponivel
-depois que o mantenedor publicar a release; nao ha comando remoto ficticio neste guia.
+   - [Windows Intel/AMD](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-windows-amd64.zip)
+   - [Windows ARM](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-windows-arm64.zip)
+   - [macOS Apple Silicon](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-darwin-arm64.zip)
+   - [macOS Intel](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-darwin-amd64.zip)
+   - [Linux Intel/AMD](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-linux-amd64.zip)
+   - [Linux ARM64](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-linux-arm64.zip)
 
-| Seu computador | Pacote |
+2. Extraia o ZIP.
+3. No Windows, abra `instalar.cmd`. No macOS/Linux, execute `sh install.sh` na pasta extraída.
+4. Abra uma nova sessão do Claude Code e digite `/token-saver`.
+
+O pacote contém o executável e a skill. Não é necessário instalar Python ou Node.
+Confira `SHA256SUMS.txt` se quiser validar o download antes de instalar.
+
+## Usar
+
+Na primeira execução, a ferramenta lê o projeto, mostra até três achados e propõe
+apenas mudanças compatíveis e verificáveis. Você revisa a prévia antes de aplicar.
+Se não houver ganho confirmado, ela informa que nada precisa ser alterado.
+
+| O que você quer | Comando |
 |---|---|
-| Windows Intel/AMD | `token-saver-2.0.0-windows-amd64.zip` |
-| Windows ARM | `token-saver-2.0.0-windows-arm64.zip` |
-| Mac Apple Silicon | `token-saver-2.0.0-darwin-arm64.zip` |
-| Mac Intel | `token-saver-2.0.0-darwin-amd64.zip` |
-| Linux Intel/AMD | `token-saver-2.0.0-linux-amd64.zip` |
-| Linux ARM64 | `token-saver-2.0.0-linux-arm64.zip` |
+| Começar | `/token-saver` |
+| Apenas diagnosticar | `/token-saver auditar` |
+| Desfazer a última aplicação | `/token-saver desfazer` |
+| Ver detalhes e limites | `/token-saver detalhes` |
+| Optar por respostas mais objetivas | `/token-saver modo direto` |
 
-## Como funciona
+O fluxo básico não troca o modelo, não altera o nível de raciocínio, não edita
+`CLAUDE.md`, não cria `.claudeignore` e não compacta a conversa automaticamente.
+O Modo Direto é opcional e adiciona uma regra curta no projeto.
 
-`/token-saver` verifica o projeto, apresenta ate tres achados relevantes e mostra
-o que pode melhorar. Quando voce autoriza, aplica e valida as mudancas.
-Se tudo ja estiver adequado, informa isso e encerra.
+## O que é medido
 
-| Voce quer | Comando |
-|---|---|
-| Comecar | `/token-saver` |
-| Somente verificar | `/token-saver auditar` |
-| Voltar a ultima aplicacao | `/token-saver desfazer` |
-| Entender as recomendacoes | `/token-saver detalhes` |
-| Respostas mais objetivas, opcional | `/token-saver modo direto` |
+O diagnóstico mostra configurações locais, tamanhos de arquivos de instrução,
+declarações de MCP e skills detectáveis. Isso não é uma medição de tokens ou custo
+da sessão. Confirme o comportamento real no Claude Code com `/status`, `/context`
+e `/usage`. Uma assinatura não fica mais barata automaticamente.
 
-**O que muda no basico:** reativacao local de Tool Search somente quando ha uma
-desativacao explicita e compatibilidade confirmavel. Nas versoes atuais, muitas
-instalacoes ja usam o padrao adequado: nenhuma mudanca sera necessaria.
+## Segurança e desfazer
 
-**O que permanece:** seu modelo, esforco de raciocinio, permissoes e CLAUDE.md.
-Modo Direto e opcional e adiciona uma regra curta ao projeto. Nao fazemos bloqueio
-de arquivos, compactacao invisivel nem alteracoes automaticas em instrucoes.
+JSON inválido é preservado e interrompe a aplicação. As escritas são atômicas,
+as prévias têm identificador e o histórico fica fora do projeto. O desfazer preserva
+edições posteriores em outras chaves e recusa conflitos na mesma chave.
 
-## Resultado honesto
+Uma instalação antiga ou personalizada não é sobrescrita. Consulte a [recuperação](skill/references/recovery.md) e os [limites técnicos](skill/references/details.md) quando precisar.
 
-Mostramos configuracoes verificadas, tamanhos de instrucoes e mudancas aplicadas.
-O consumo real da sessao deve ser verificado em `/context` e `/usage`.
-Economia financeira depende da forma de cobranca; uma assinatura nao fica mais
-barata automaticamente. [Limites e opcoes](skill/references/details.md).
+## Para quem desenvolve
 
-## Se algo der errado
+O CLI também oferece `audit`, `plan`, `apply`, `undo`, `install` e `details`, com
+`--json`, `--dry-run`, `--project`, `--config-dir` e `--expect`. Os testes e o
+processo de empacotamento estão em [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Use `/token-saver desfazer`. Outras edicoes posteriores sao preservadas; conflitos
-na mesma configuracao sao reportados sem sobrescrever o usuario.
-JSON invalido e interrompido, sem tentativa de "conserto" por regex.
-[Recuperacao e desinstalacao](skill/references/recovery.md).
+## Licença
 
-Uma skill token-saver antiga ou personalizada nao sera sobrescrita. Preserve ou
-renomeie a pasta antiga antes de instalar esta versao. O executavel pode ser usado
-diretamente do pacote para auditar antes de migrar.
-
-## Para desenvolvedores
-
-CLI com `audit`, `plan`, `apply`, `undo`, `install`, `details`; `--json` para automacao,
-`--dry-run` para previa e `--expect` para aplicar apenas o plano revisado.
-AUDIT/SETUP continuam reconhecidos. Todos os ajustes sao locais; nenhuma telemetria.
-
-[Arquitetura, testes e publicacao](CONTRIBUTING.md) · [English](README.en.md) · [Fontes](skill/references/sources.md)
-
-Licenca MIT. Evolucao do trabalho de Victor Machado Mendonça / 4pixeltechBR.
+MIT. [Fontes e validade](skill/references/sources.md) · [English](README.en.md)

@@ -46,7 +46,7 @@ Aceita BOM UTF-8. Nunca imprima valores de configuracao ou backups em logs de CI
 2. Valide instalacao, reconhecimento de `/token-saver`, aplicacao e undo em Claude
    Code real. Teste iniciantes e seniores; nao substitua isso por contagem de testes.
 3. Atualize `version` em main.go e `VERSION` em scripts/package.py juntos.
-4. Gere os pacotes; confira SHA256SUMS.txt e publique uma release com a tag v2.0.0.
+4. Gere os pacotes; confira SHA256SUMS.txt e publique uma release com a tag v2.0.1.
 5. O workflow `Packages` gera artefatos para download, mas nao publica release.
 
 Checksums detectam corrupcao; nao equivalem a assinatura de identidade. Binarios

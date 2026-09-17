@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1 — 2026-09-17
+
+- README atualizado com downloads diretos da release pública e fluxo de instalação em quatro passos.
+- Pacotes recompilados com versão `2.0.1` para Windows, macOS e Linux, amd64 e arm64.
+- Release pública inclui código-fonte, checksums e guia rápido.
+
 ## 2.0.0 — 2026-09-17
 
 - Skill curta com entrada guiada, diagnostico, detalhes e desfazer.
@@ -12,5 +18,5 @@
 - Removidas promessas de economia, .claudeignore, horarios anedoticos e dependencias
   automaticas de Caveman/CRG. Referencias oficiais e limitacoes explicitas.
 
-Nao inclui publicacao no GitHub, assinatura de binarios, validacao humana com cinco
-usuarios ou benchmarks de economia. A automacao de CI executa testes nativos por SO.
+Ainda não inclui assinatura de binários, validação humana com cinco usuários ou
+benchmarks de economia. A automação de CI executa testes nativos por SO.

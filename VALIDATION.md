@@ -1,4 +1,4 @@
-# Validacao da entrega 2.0.0
+# Validacao da entrega 2.0.1
 
 Data: 17/09/2026. Base analisada: repositorio 4pixeltechBR/token_saver_ClaudeCode,
 commit `088b4775840854ee64da667fdbbc59772b5575cf`.
@@ -34,6 +34,6 @@ O workflow Test executara testes nativos nos tres sistemas quando enviado ao Git
 A CLI local do Claude Code respondeu a consulta de versao, mas nao foi iniciada
 uma chamada paga de IA para comprovar a invocacao da skill em uma sessao real.
 
-Nao foram feitos benchmark de economia nem testes com cinco usuarios. Binarios
+Não foram feitos benchmark de economia nem testes com cinco usuários. Binários
 nao estao assinados/notarizados. Nenhuma release foi publicada e nenhuma configuracao
 real do usuario foi alterada; instalacao e mutacoes foram testadas em perfis isolados.
