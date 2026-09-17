@@ -1,53 +1,22 @@
-name: ✨ Feature Request
-description: Suggest an improvement or new feature
+name: Feature request
+description: Suggest a measured, reversible improvement
 title: "[FEATURE] "
 labels: ["enhancement"]
-
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Great! We'd love to hear your ideas. Please provide details about the feature you'd like to see.
-
-  - type: input
-    id: title
-    attributes:
-      label: Feature Summary
-      placeholder: "Brief description of the feature"
-    validations:
-      required: true
-
   - type: textarea
     id: problem
     attributes:
-      label: What problem does this solve?
-      description: "Is your feature request related to a problem? Describe it."
-      placeholder: "I'm always frustrated when..."
+      label: What problem should this solve?
     validations:
       required: true
-
   - type: textarea
-    id: solution
+    id: proposal
     attributes:
-      label: Proposed Solution
-      description: "How would you like this feature to work?"
-      placeholder: "The feature could work by..."
+      label: Proposed behavior
     validations:
       required: true
-
   - type: textarea
-    id: alternatives
+    id: evidence
     attributes:
-      label: Alternative Solutions
-      description: "Any other ways this could be solved?"
-      placeholder: "Other approaches could be..."
-    validations:
-      required: false
-
-  - type: textarea
-    id: additional
-    attributes:
-      label: Additional Context
-      description: "Any other information or examples"
-    validations:
-      required: false
+      label: Evidence or task baseline
+      description: Include comparable before/after runs when claiming savings.
