@@ -21,7 +21,5 @@ if [ "${#expected}" -ne 64 ] || [ "$expected" != "$actual" ]; then
   exit 1
 fi
 chmod u+x "$binary"
-if ! command -v claude >/dev/null 2>&1; then
-  printf '%s\n' 'Claude Code nao encontrado no PATH. Confira seu acesso antes de usar a skill.'
-fi
+printf '%s\n' 'O instalador aceita --harness auto ou um harness especifico; use --help para detalhes.'
 exec "$binary" install "$@"

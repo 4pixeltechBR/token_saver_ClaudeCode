@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.0.0 — 2026-09-18
+
+- Skill portátil para Claude Code, Codex, Antigravity, OpenCode, Cursor, Gemini CLI,
+  GitHub Copilot, Cline e MiniMax Code.
+- Novo comando `detect` e opção `--harness` para instalação e auditoria explícitas.
+- Adaptadores conservadores de descoberta e auditoria somente leitura para os demais
+  harnesses; o adaptador completo de escrita do Claude Code foi preservado.
+- Skill passou a incluir `agents/openai.yaml`, matriz de compatibilidade e documentação
+  de todos os comandos e limites.
+- Pacotes agora carregam a skill portátil completa, incluindo referências e metadados.
+- Testes de auditoria portátil, plano somente leitura e destinos de instalação por host.
+
 ## 2.0.1 — 2026-09-17
 
 - README atualizado com downloads diretos da release pública e fluxo de instalação em quatro passos.

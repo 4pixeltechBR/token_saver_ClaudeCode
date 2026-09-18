@@ -1,0 +1,7 @@
+interface:
+  display_name: "Token Saver"
+  short_description: "Audita e reduz desperdício de contexto com segurança"
+  brand_color: "#10A37F"
+  default_prompt: "Audite o desperdício de contexto neste projeto e proponha somente mudanças verificáveis."
+policy:
+  allow_implicit_invocation: true

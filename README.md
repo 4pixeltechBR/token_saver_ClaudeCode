@@ -1,67 +1,152 @@
-# Token Saver
+# Token Saver 3.0
 
-Uma forma simples e reversível de encontrar desperdício de contexto no Claude Code.
-O Token Saver preserva seu modelo, seu nível de raciocínio e suas instruções.
+Auditoria segura de contexto para Claude Code, Codex, Antigravity, OpenCode,
+Cursor, Gemini CLI, GitHub Copilot, Cline e MiniMax Code.
 
-[Baixar a versão mais recente](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest) · [Ver o código](https://github.com/4pixeltechBR/token_saver_ClaudeCode)
+[Baixar a release](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest) · [Ver o código](https://github.com/4pixeltechBR/token_saver_ClaudeCode) · [Matriz de harnesses](skill/references/harnesses.md)
+
+## O que mudou
+
+Esta versão separa a skill portátil do comportamento específico de cada harness.
+O mesmo pacote pode ser descoberto por vários agentes, mas só altera uma
+configuração quando conhece o formato, a versão e o rollback daquele ambiente.
+
+O núcleo é conservador: diagnostica primeiro, mostra evidências, cria uma prévia
+com identificador e nunca transforma tamanho de arquivo em uma falsa economia de
+tokens.
+
+## Capacidades
+
+| Função | Claude Code | Outros harnesses |
+|---|---:|---:|
+| Detectar ambientes disponíveis | Sim | Sim |
+| Auditar projeto e instruções | Sim | Sim |
+| Detectar stack | Sim | Sim |
+| Contar skills detectáveis | Sim | Sim |
+| Saída JSON para automação | Sim | Sim |
+| Prévia (`plan`) | Sim | Sim, sem escrita |
+| Aplicar configurações | Sim, quando elegível | Ainda não |
+| Desfazer aplicação | Sim | Ainda não |
+| Modo Direto | Sim, opt-in | Orientação manual |
+| Telemetria | Nunca | Nunca |
+
+### O que o Claude Code pode aplicar
+
+- Reativar Tool Search somente quando existe uma desativação explícita e a
+  compatibilidade é confirmada.
+- Adicionar opcionalmente uma regra curta de Modo Direto em `.claude/rules`.
+- Fazer backup, escrita atômica, validação e rollback com proteção contra
+  conflitos e links simbólicos.
+
+### O que todos os harnesses podem auditar
+
+- Arquivos de instrução longos e possíveis repetições.
+- Stack detectada por manifests do projeto.
+- Skills encontradas nos diretórios suportados pelo host.
+- Estado de descoberta da própria skill.
+- Limites e próximos passos sem inventar consumo ou economia.
+
+O Token Saver não troca modelos, não reduz thinking, não edita `CLAUDE.md`, não
+cria `.claudeignore`, não compacta conversas automaticamente e não instala
+plugins externos.
 
 ## Instalar
 
-1. Abra a [release mais recente](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest) e baixe o ZIP correspondente ao seu computador:
+Baixe o ZIP da [release mais recente](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest)
+para seu sistema, extraia e execute o binário. O pacote não exige Python ou Node.
 
-   - [Windows Intel/AMD](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-windows-amd64.zip)
-   - [Windows ARM](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-windows-arm64.zip)
-   - [macOS Apple Silicon](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-darwin-arm64.zip)
-   - [macOS Intel](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-darwin-amd64.zip)
-   - [Linux Intel/AMD](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-linux-amd64.zip)
-   - [Linux ARM64](https://github.com/4pixeltechBR/token_saver_ClaudeCode/releases/latest/download/token-saver-2.0.1-linux-arm64.zip)
+```text
+token-saver detect --project .
+token-saver install --harness claude --project .
+token-saver install --harness codex --project .
+```
 
-2. Extraia o ZIP.
-3. No Windows, abra `instalar.cmd`. No macOS/Linux, execute `sh install.sh` na pasta extraída.
-4. Abra uma nova sessão do Claude Code e digite `/token-saver`.
+Use `--harness auto` para escolher o primeiro ambiente detectado. Para uma
+instalação em um projeto específico, prefira uma pasta de skill versionada pelo
+projeto; para uso global, deixe o instalador usar o diretório pessoal.
 
-O pacote contém o executável e a skill. Não é necessário instalar Python ou Node.
-Confira `SHA256SUMS.txt` se quiser validar o download antes de instalar.
+Depois de instalar, abra uma nova sessão ou recarregue as skills do harness.
+As formas usuais são:
+
+| Ambiente | Instalação global | Como chamar |
+|---|---|---|
+| Claude Code | `~/.claude/skills/token-saver` | `/token-saver` |
+| Codex | `~/.agents/skills/token-saver` | `$token-saver` |
+| Antigravity | `~/.gemini/antigravity/skills/token-saver` | peça uma auditoria |
+| OpenCode | `~/.config/opencode/skills/token-saver` | use a skill `token-saver` |
+| Cursor | `~/.cursor/skills/token-saver` | `/token-saver` |
+| Gemini CLI | `~/.gemini/skills/token-saver` | `/skills` e ative |
+| GitHub Copilot | `~/.copilot/skills/token-saver` | `/token-saver` |
+| Cline | `~/.cline/skills/token-saver` | use a skill `token-saver` |
+| MiniMax Code | plugin `skills/token-saver` | ative o plugin |
 
 ## Usar
 
-Na primeira execução, a ferramenta lê o projeto, mostra até três achados e propõe
-apenas mudanças compatíveis e verificáveis. Você revisa a prévia antes de aplicar.
-Se não houver ganho confirmado, ela informa que nada precisa ser alterado.
+No Claude Code, o fluxo principal é:
 
-| O que você quer | Comando |
-|---|---|
-| Começar | `/token-saver` |
-| Apenas diagnosticar | `/token-saver auditar` |
-| Desfazer a última aplicação | `/token-saver desfazer` |
-| Ver detalhes e limites | `/token-saver detalhes` |
-| Optar por respostas mais objetivas | `/token-saver modo direto` |
+```text
+/token-saver
+/token-saver auditar
+/token-saver desfazer
+/token-saver detalhes
+/token-saver modo direto
+```
 
-O fluxo básico não troca o modelo, não altera o nível de raciocínio, não edita
-`CLAUDE.md`, não cria `.claudeignore` e não compacta a conversa automaticamente.
-O Modo Direto é opcional e adiciona uma regra curta no projeto.
+No terminal, todos os hosts podem usar o CLI:
 
-## O que é medido
+```text
+token-saver detect --json
+token-saver audit --harness codex --project . --json
+token-saver audit --harness opencode --project .
+token-saver plan --harness claude --project . --json
+token-saver apply --harness claude --project . --yes --expect ID_DA_PREVIA --json
+token-saver undo --harness claude --project . --json
+token-saver details
+token-saver version
+```
 
-O diagnóstico mostra configurações locais, tamanhos de arquivos de instrução,
-declarações de MCP e skills detectáveis. Isso não é uma medição de tokens ou custo
-da sessão. Confirme o comportamento real no Claude Code com `/status`, `/context`
-e `/usage`. Uma assinatura não fica mais barata automaticamente.
+Opções comuns:
 
-## Segurança e desfazer
+```text
+--project PASTA       raiz do projeto analisado
+--harness ID          auto, claude, codex, antigravity, opencode, cursor,
+                      gemini, copilot, cline ou minimax
+--config-dir PASTA    perfil do harness; útil para testes isolados
+--json                saída estruturada, sem segredos
+--dry-run             somente prévia
+--yes                 autoriza uma prévia já revisada
+--expect ID           recusa aplicar se o ambiente mudou
+--concise             inclui o Modo Direto no plano do Claude Code
+```
 
-JSON inválido é preservado e interrompe a aplicação. As escritas são atômicas,
-as prévias têm identificador e o histórico fica fora do projeto. O desfazer preserva
-edições posteriores em outras chaves e recusa conflitos na mesma chave.
+## Honestidade sobre tokens
 
-Uma instalação antiga ou personalizada não é sobrescrita. Consulte a [recuperação](skill/references/recovery.md) e os [limites técnicos](skill/references/details.md) quando precisar.
+O diagnóstico lê arquivos e configurações locais. Ele não mede tokens de entrada,
+saída, cache, custo real ou a economia contrafactual. Uma alteração gravada não
+prova ganho na sessão. Verifique o painel, comando de contexto ou relatório de
+uso oferecido pelo seu próprio harness.
 
-## Para quem desenvolve
+## Segurança e recuperação
 
-O CLI também oferece `audit`, `plan`, `apply`, `undo`, `install` e `details`, com
-`--json`, `--dry-run`, `--project`, `--config-dir` e `--expect`. Os testes e o
-processo de empacotamento estão em [CONTRIBUTING.md](CONTRIBUTING.md).
+O modo padrão é leitura. JSON inválido, configuração gerenciada, versão não
+confirmada ou conflito interrompem a aplicação. No Claude Code, o histórico fica
+fora do projeto, as escritas são atômicas e o rollback preserva edições posteriores
+em chaves não relacionadas. Consulte [recovery](skill/references/recovery.md) e
+[details](skill/references/details.md) antes de remover qualquer backup pendente.
+
+## Desenvolver
+
+```text
+go test ./...
+go vet ./...
+python scripts/package.py --out dist
+```
+
+O repositório mantém um núcleo em Go, a skill portável em `skill/` e adaptadores
+de descoberta por harness em `harness.go` e `portable_audit.go`. A matriz completa
+fica em [skill/references/harnesses.md](skill/references/harnesses.md).
 
 ## Licença
 
-MIT. [Fontes e validade](skill/references/sources.md) · [English](README.en.md)
+MIT. Veja [CHANGELOG](CHANGELOG.md), [VALIDATION](VALIDATION.md) e a versão em
+[English](README.en.md).

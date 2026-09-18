@@ -1,39 +1,33 @@
-# Validacao da entrega 2.0.1
+# Validação da entrega 3.0.0
 
-Data: 17/09/2026. Base analisada: repositorio 4pixeltechBR/token_saver_ClaudeCode,
-commit `088b4775840854ee64da667fdbbc59772b5575cf`.
+Data: 18/09/2026. Base: release multi-harness do repositório
+`4pixeltechBR/token_saver_ClaudeCode`.
 
-## Executado neste ambiente
+## Executado
 
-- Compilacao Go 1.27.1 para Windows, macOS e Linux, amd64 e arm64.
-- Suite automatizada no Windows amd64: 30 testes/subtestes aprovados, um teste
-  de symlink Unix ignorado por falta de privilegio para criar symlinks no Windows.
-- Teste adicional nativo de junction do Windows aprovado: escrita recusada e
-  destino redirecionado preservado.
+- `go test ./...` aprovado no Windows amd64, incluindo auditoria portátil,
+  plano somente leitura e destinos de instalação por harness.
 - `go vet ./...` aprovado.
-- Validacao estrutural de SKILL.md aprovada.
-- Sintaxe do instalador PowerShell aprovada pelo parser; instalador shell aprovado
-  por `bash -n`.
-- Fluxo do pacote Windows em perfil e projeto isolados, inclusive caminhos com
-  espacos: instalar, auditar, gerar plano, aplicar Modo Direto e desfazer.
-- Integridade dos seis ZIPs e dos checksums dos binarios conferida.
+- Compilação cruzada para Windows, macOS e Linux, amd64 e arm64.
+- `token-saver version` retorna `3.0.0`.
+- `token-saver detect --json` lista os nove ambientes suportados pelo catálogo.
+- Auditoria `codex` executada em modo somente leitura e sem escrever no projeto.
+- Seis ZIPs de plataforma e pacote `agent-plugin` gerados.
+- `SHA256SUMS.txt` gerado para todos os sete ZIPs.
+- O pacote de plugin contém `plugin.json`, `.claude-plugin/plugin.json`,
+  `skills/SKILL.md` e `skills/token-saver/SKILL.md`, sem binário nativo.
 
-## Comportamentos cobertos
+## Capacidades verificadas
 
-JSON invalido e chaves duplicadas; URLs e numeros grandes; preservacao de modelo,
-permissoes e variaveis; ausencia de segredos na saida; preview sem escrita;
-configuracao efetiva local; compatibilidade conservadora; idempotencia; plano
-obsoleto; lock; conflito na mesma chave; preservacao de edicoes posteriores;
-undo exato; recuperacao de journal pendente; caminhos de backup fora do escopo;
-instalacao, atualizacao e protecao de skills personalizadas.
+O Claude Code mantém aplicação, backup, validação e undo completos. Codex,
+Antigravity, OpenCode, Cursor, Gemini CLI, GitHub Copilot, Cline e MiniMax Code
+foram adicionados ao catálogo de descoberta, instalação e auditoria conservadora.
+Eles permanecem somente leitura até que exista um adaptador de escrita testado
+para o formato e as métricas de cada host.
 
-## Limites desta validacao
+## Limites
 
-macOS, Linux e Windows ARM foram compilados, mas nao executados nativamente aqui.
-O workflow Test executara testes nativos nos tres sistemas quando enviado ao GitHub.
-A CLI local do Claude Code respondeu a consulta de versao, mas nao foi iniciada
-uma chamada paga de IA para comprovar a invocacao da skill em uma sessao real.
-
-Não foram feitos benchmark de economia nem testes com cinco usuários. Binários
-nao estao assinados/notarizados. Nenhuma release foi publicada e nenhuma configuracao
-real do usuario foi alterada; instalacao e mutacoes foram testadas em perfis isolados.
+Os binários macOS, Linux e ARM foram compilados, mas não executados nativamente
+neste Windows. O plugin sem binário exige o companion CLI para auditoria JSON
+determinística, aplicação e rollback. Não foram feitos benchmarks de economia,
+testes com usuários ou assinatura/notarização de binários.

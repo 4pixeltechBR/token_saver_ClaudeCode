@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$ConfigDir = '',
+    [string]$Harness = 'claude',
     [switch]$DryRun
 )
 $ErrorActionPreference = 'Stop'
@@ -14,11 +15,9 @@ if ($checksumLines.Count -ne 1) { throw 'Manifesto de integridade invalido.' }
 $expectedHash = ($checksumLines[0] -split '  ')[0]
 $actualHash = (Get-FileHash -LiteralPath $packageBinary -Algorithm SHA256).Hash
 if ($actualHash -ne $expectedHash) { throw 'O pacote esta corrompido. Baixe novamente a versao publicada.' }
-$binaryArgs = @('install')
+$binaryArgs = @('install', '--harness', $Harness)
 if ($ConfigDir) { $binaryArgs += @('--config-dir', $ConfigDir) }
 if ($DryRun) { $binaryArgs += '--dry-run' }
-if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
-    Write-Host 'Claude Code nao foi encontrado no PATH. A skill sera instalada; confira seu acesso ao Claude Code antes de usa-la.'
-}
+Write-Host "Instalando Token Saver para o harness: $Harness"
 & $packageBinary @binaryArgs
 if ($LASTEXITCODE -ne 0) { throw "A instalacao nao foi concluida (codigo $LASTEXITCODE)." }

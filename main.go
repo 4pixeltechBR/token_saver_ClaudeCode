@@ -12,11 +12,12 @@ import (
 	"strings"
 )
 
-const version = "2.0.1"
+const version = "3.0.0"
 
 type options struct {
 	Project       string
 	Config        string
+	Harness       string
 	JSON          bool
 	Yes           bool
 	Dry           bool
@@ -50,7 +51,8 @@ func run(args []string, in io.Reader, out io.Writer) error {
 	f.SetOutput(out)
 	o := options{}
 	f.StringVar(&o.Project, "project", ".", "Pasta do projeto")
-	f.StringVar(&o.Config, "config-dir", "", "Pasta .claude (padrao: CLAUDE_CONFIG_DIR ou pasta pessoal)")
+	f.StringVar(&o.Config, "config-dir", "", "Pasta de configuracao do harness")
+	f.StringVar(&o.Harness, "harness", "claude", "Harness: auto, claude, codex, antigravity, opencode, cursor, gemini, copilot, cline ou minimax")
 	f.BoolVar(&o.JSON, "json", false, "Saida estruturada, sem valores secretos")
 	f.BoolVar(&o.Yes, "yes", false, "Autoriza as mudancas apresentadas")
 	f.BoolVar(&o.Dry, "dry-run", false, "Somente previa, sem escrever arquivos")
@@ -69,9 +71,9 @@ func run(args []string, in io.Reader, out io.Writer) error {
 		fmt.Fprintln(out, helpText)
 		return nil
 	}
-	valid := map[string]bool{"audit": true, "plan": true, "apply": true, "undo": true, "details": true, "install": true}
+	valid := map[string]bool{"audit": true, "plan": true, "apply": true, "undo": true, "details": true, "install": true, "detect": true}
 	if !valid[command] {
-		return errors.New("comando desconhecido. Use audit, plan, apply, undo, details ou install")
+		return errors.New("comando desconhecido. Use audit, plan, apply, undo, details, detect ou install")
 	}
 	if command == "details" {
 		fmt.Fprintln(out, detailsText)
@@ -80,8 +82,18 @@ func run(args []string, in io.Reader, out io.Writer) error {
 	if err := normalize(&o); err != nil {
 		return err
 	}
+	if command == "detect" {
+		return outputDetections(out, o.JSON, detectedHarnesses(o.Project))
+	}
 	if command == "install" {
 		return install(o, out)
+	}
+	if o.Harness != "claude" && command != "audit" {
+		if command == "plan" {
+			p := Plan{ID: hash([]byte(o.Harness + "\x00" + o.Project)), Notes: []string{harnessInfoText(o.Harness), "Nenhuma configuracao foi alterada."}, Savings: "nao medida"}
+			return output(out, o.JSON, p)
+		}
+		return fmt.Errorf("o harness %s esta em modo somente leitura; use audit ou aguarde um adaptador de escrita", o.Harness)
 	}
 	if command == "undo" {
 		preview, err := undoPreview(o)
@@ -106,7 +118,7 @@ func run(args []string, in io.Reader, out io.Writer) error {
 		}
 		return output(out, o.JSON, result)
 	}
-	a, err := audit(o)
+	a, err := auditForHarness(o)
 	if err != nil {
 		return err
 	}
@@ -153,16 +165,17 @@ func normalize(o *options) error {
 	if err != nil || !info.IsDir() {
 		return errors.New("o projeto precisa ser uma pasta")
 	}
-	if o.Config == "" {
+	if o.Harness == "" {
+		o.Harness = "claude"
+	}
+	o.Harness, err = resolveHarness(o.Harness, o.Project)
+	if err != nil {
+		return err
+	}
+	if o.Config == "" && o.Harness == "claude" {
 		o.Config = os.Getenv("CLAUDE_CONFIG_DIR")
 	}
-	if o.Config == "" {
-		home, e := os.UserHomeDir()
-		if e != nil {
-			return e
-		}
-		o.Config = filepath.Join(home, ".claude")
-	}
+	o.Config = harnessConfigRoot(o.Harness, o.Config)
 	o.Config, err = filepath.Abs(o.Config)
 	return err
 }
@@ -185,24 +198,25 @@ func output(out io.Writer, structured bool, value printable) error {
 	return err
 }
 
-const helpText = `Token Saver 2.0 — configuracoes claras, mudancas reversiveis.
+const helpText = `Token Saver 3.0 Multi-Harness — configuracoes claras, mudancas reversiveis.
   token-saver audit                 Diagnosticar sem alterar nada
   token-saver plan                  Ver mudancas propostas
   token-saver apply                 Revisar e aplicar
   token-saver apply --concise       Incluir Modo Direto (opcional)
   token-saver undo                  Desfazer a ultima aplicacao
-  token-saver install               Instalar /token-saver no Claude Code
+  token-saver install               Instalar a skill no harness escolhido
+  token-saver detect                Detectar harnesses disponiveis
   token-saver details               Entender os limites
 
-Opcoes: --project PASTA, --json, --dry-run, --yes, --expect ID.
+Opcoes: --project PASTA, --harness ID, --config-dir PASTA, --json, --dry-run, --yes, --expect ID.
 AUDIT e SETUP antigos continuam aceitos. Nenhuma telemetria ou chamada de IA.`
 
-const detailsText = `Token Saver 2.0
+const detailsText = `Token Saver 3.0 Multi-Harness
 O diagnostico le configuracoes locais e mede bytes/linhas; nao inventa tokens.
-Quantidade de MCPs ou skills nao prova desperdicio. Dados da sessao sao vistos
-no /context e /usage do Claude Code. Economia total: nao medida por este CLI.
+Quantidade de MCPs ou skills nao prova desperdicio. O CLI nao le dados da sessao
+nem mede tokens, cache, custo real ou economia contrafactual.
 
-O ajuste automatico de Tool Search so e proposto para uma desativacao explicita,
+No Claude Code, o ajuste automatico de Tool Search so e proposto para uma desativacao explicita,
 com Claude Code >= 2.1.221, modelo 4.5+ identificavel e acesso direto a Anthropic.
 Overrides de ambiente, configuracao gerenciada e provedores desconhecidos
 impedem esse ajuste. Flags de inicializacao e politicas remotas nao sao visiveis:
@@ -215,7 +229,7 @@ promete alterar mensalidades. As regras de modelo, thinking e permissoes ficam
 preservadas. O CLI nunca imprime valores de env, credenciais ou JSON completo.
 
 Backups locais podem conter configuracoes sensiveis. Ficam em
-CLAUDE_CONFIG_DIR/token-saver/state, fora do projeto, com acesso restrito onde
+o diretorio de configuracao do harness/token-saver/state, fora do projeto, com acesso restrito onde
 suportado pelo sistema. Undo preserva edicoes posteriores em outras chaves e
 recusa conflitos. Execute fora de uma gravacao concorrente das configuracoes.
 Uma interrupcao deixa journal recuperavel por undo; nao apague backups pendentes.`

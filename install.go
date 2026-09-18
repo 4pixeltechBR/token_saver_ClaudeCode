@@ -23,7 +23,11 @@ type installManifest struct {
 }
 
 func install(o options, out io.Writer) error {
-	dest := filepath.Join(o.Config, "skills", "token-saver")
+	harness := o.Harness
+	if harness == "" {
+		harness = "claude"
+	}
+	dest := harnessSkillDestination(harness, o.Config)
 	if err := noLinks(dest); err != nil {
 		return err
 	}
@@ -122,7 +126,11 @@ func install(o options, out io.Writer) error {
 	if err = verifyOwned(dest); err != nil {
 		return err
 	}
-	fmt.Fprintf(out, "Token Saver %s instalado e verificado.\nAbra uma nova sessao do Claude Code e digite /token-saver.\nPasta: %s\nNenhuma configuracao de modelo ou projeto foi alterada.\n", version, dest)
+	invocation := "use a skill token-saver"
+	if h, ok := harnessInfo(harness); ok {
+		invocation = h.Invocation
+	}
+	fmt.Fprintf(out, "Token Saver %s instalado para %s e verificado.\nDepois, %s.\nPasta: %s\nNenhuma configuracao de modelo ou projeto foi alterada.\n", version, harness, invocation, dest)
 	if backup != "" {
 		fmt.Fprintf(out, "Instalacao anterior preservada em: %s\n", backup)
 	}

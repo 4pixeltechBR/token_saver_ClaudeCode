@@ -428,3 +428,47 @@ func TestSymlinkWriteRefused(t *testing.T) {
 		t.Fatal("symlink allowed")
 	}
 }
+
+func TestPortableHarnessAuditIsReadOnly(t *testing.T) {
+	o := fixture(t)
+	o.Harness = "codex"
+	put(t, filepath.Join(o.Project, "AGENTS.md"), []byte("# project\n"))
+	before := tree(t, filepath.Dir(o.Project))
+	a, err := auditForHarness(o)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a.Harness != "codex" || a.Scope == "" || len(a.InstructionFiles) != 1 {
+		t.Fatalf("unexpected portable audit: %+v", a)
+	}
+	if !reflect.DeepEqual(before, tree(t, filepath.Dir(o.Project))) {
+		t.Fatal("portable audit wrote files")
+	}
+}
+
+func TestPortableHarnessPlanDoesNotWrite(t *testing.T) {
+	o := fixture(t)
+	var out bytes.Buffer
+	if err := run([]string{"plan", "--harness", "opencode", "--project", o.Project, "--config-dir", o.Config, "--json"}, strings.NewReader(""), &out); err != nil {
+		t.Fatal(err)
+	}
+	var p Plan
+	if err := json.Unmarshal(out.Bytes(), &p); err != nil {
+		t.Fatal(err)
+	}
+	if len(p.Changes) != 0 || len(p.Notes) == 0 {
+		t.Fatalf("portable plan should be read-only: %+v", p)
+	}
+}
+
+func TestHarnessInstallDestination(t *testing.T) {
+	o := fixture(t)
+	o.Harness = "codex"
+	if err := install(o, &bytes.Buffer{}); err != nil {
+		t.Fatal(err)
+	}
+	want := filepath.Join(o.Config, "skills", "token-saver")
+	if err := verifyOwned(want); err != nil {
+		t.Fatal(err)
+	}
+}

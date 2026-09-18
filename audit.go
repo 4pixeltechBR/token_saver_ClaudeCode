@@ -26,6 +26,7 @@ type InstructionSize struct {
 }
 type Audit struct {
 	Version          string            `json:"version"`
+	Harness          string            `json:"harness,omitempty"`
 	Project          string            `json:"project"`
 	ClaudeVersion    string            `json:"claude_version"`
 	Stack            []string          `json:"stack"`
@@ -41,6 +42,9 @@ type Audit struct {
 }
 
 func (a Audit) human() string {
+	if a.Harness != "" && a.Harness != "claude" {
+		return a.portableHuman()
+	}
 	var b strings.Builder
 	fmt.Fprintf(&b, "Token Saver %s | Diagnostico\nProjeto: %s\n", version, a.Project)
 	if len(a.Stack) > 0 {
